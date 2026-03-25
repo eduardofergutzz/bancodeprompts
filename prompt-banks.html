@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Banks — Fotografia & Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg:        #080808;
+      --bg2:       #0f0f0f;
+      --bg3:       #141414;
+      --surface:   #161616;
+      --border:    rgba(255,255,255,0.07);
+      --text:      #EDE8DF;
+      --muted:     #7A7670;
+      --gold:      #C9A84C;
+      --gold-dim:  rgba(201,168,76,0.12);
+      --gold-glow: rgba(201,168,76,0.25);
+      --teal:      #3ECFBF;
+      --teal-dim:  rgba(62,207,191,0.1);
+      --coral:     #E86A50;
+      --coral-dim: rgba(232,106,80,0.1);
+      --purple:    #9F7FE3;
+      --purple-dim:rgba(159,127,227,0.1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ── Grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.028;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── Custom scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      padding: 100px 64px 80px;
+      max-width: 1400px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.1s;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garant', serif;
+      font-size: clamp(60px, 9vw, 128px);
+      font-weight: 300;
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.25s;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.7;
+      margin-top: 28px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    /* Aperture decoration */
+    .aperture {
+      position: absolute;
+      right: -60px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 420px;
+      height: 420px;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards 0.6s;
+      pointer-events: none;
+    }
+    .aperture svg {
+      width: 100%;
+      height: 100%;
+      animation: spin 40s linear infinite;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.55s;
+    }
+    .stat-value {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 64px 48px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.65s;
+    }
+    .filter-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: 6px;
+    }
+    .pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.22s ease;
+    }
+    .pill:hover { border-color: var(--text); color: var(--text); }
+    .pill.active[data-cat="all"]   { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+    .pill.active[data-cat="foto"]  { background: var(--teal-dim); border-color: var(--teal); color: var(--teal); }
+    .pill.active[data-cat="design"]{ background: var(--coral-dim); border-color: var(--coral); color: var(--coral); }
+    .pill.active[data-cat="misto"] { background: var(--purple-dim); border-color: var(--purple); color: var(--purple); }
+
+    /* ── Cards grid ── */
+    .grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 64px 120px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: cardIn 0.6s ease forwards;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.14);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .card[data-cat="foto"]:hover    { border-color: rgba(62,207,191,0.3); box-shadow: 0 20px 60px rgba(62,207,191,0.08); }
+    .card[data-cat="design"]:hover  { border-color: rgba(232,106,80,0.3); box-shadow: 0 20px 60px rgba(232,106,80,0.08); }
+    .card[data-cat="misto"]:hover   { border-color: rgba(159,127,227,0.3); box-shadow: 0 20px 60px rgba(159,127,227,0.08); }
+
+    /* Subtle corner accent */
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 80px; height: 80px;
+      border-radius: 0 12px 0 0;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .card[data-cat="foto"]::after   { background: radial-gradient(circle at top right, rgba(62,207,191,0.08), transparent 70%); }
+    .card[data-cat="design"]::after { background: radial-gradient(circle at top right, rgba(232,106,80,0.08), transparent 70%); }
+    .card[data-cat="misto"]::after  { background: radial-gradient(circle at top right, rgba(159,127,227,0.08), transparent 70%); }
+    .card:hover::after { opacity: 1; }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .card-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 100px;
+      font-weight: 500;
+    }
+    .card[data-cat="foto"]   .card-badge { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(62,207,191,0.2); }
+    .card[data-cat="design"] .card-badge { background: var(--coral-dim); color: var(--coral); border: 1px solid rgba(232,106,80,0.2); }
+    .card[data-cat="misto"]  .card-badge { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(159,127,227,0.2); }
+
+    .card-price {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+    }
+    .card-price.free { color: #5BD48A; border-color: rgba(91,212,138,0.2); background: rgba(91,212,138,0.06); }
+    .card-price.mixed { color: var(--gold); border-color: rgba(201,168,76,0.2); background: var(--gold-dim); }
+
+    .card-name {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .card-url {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      opacity: 0.7;
+    }
+
+    .card-desc {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #9D9890;
+      margin-bottom: 24px;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 28px;
+    }
+    .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--text);
+      padding: 12px 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      transition: all 0.22s ease;
+      background: rgba(255,255,255,0.03);
+    }
+    .card-cta:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.2);
+      gap: 12px;
+    }
+    .card-cta svg { transition: transform 0.2s ease; }
+    .card-cta:hover svg { transform: translateX(3px) translateY(-3px); }
+
+    /* card hidden state for filter */
+    .card.hidden {
+      display: none;
+    }
+
+    /* ── Categories section ── */
+    .section-title {
+      font-family: 'Cormorant Garant', serif;
+      font-size: 48px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--muted);
+      max-width: 1400px;
+      margin: 0 auto 40px;
+      padding: 0 64px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 1s;
+    }
+
+    .cats-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 64px 120px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 1.1s;
+    }
+
+    .cat-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 13px;
+      color: #9D9890;
+    }
+    .cat-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-teal   { background: var(--teal); }
+    .dot-coral  { background: var(--coral); }
+
+    /* ── Divider ── */
+    .divider {
+      max-width: 1400px;
+      margin: 0 auto 60px;
+      padding: 0 64px;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 64px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    footer span em { color: var(--gold); font-style: normal; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .hero, .filter-bar, .grid, .cats-grid, .divider, .section-title, footer {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+      .hero { padding-top: 64px; padding-bottom: 48px; }
+      .aperture { display: none; }
+      .hero-stats { gap: 28px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ░░ HERO ░░ -->
+  <header class="hero">
+    <div class="hero-eyebrow">Curadoria de recursos</div>
+    <h1 class="hero-title">Prompt<br><em>Banks</em></h1>
+    <p class="hero-sub">Os melhores bancos de prompts para IA — cobrindo fotografia, design gráfico, ilustração e muito mais.</p>
+
+    <div class="hero-stats">
+      <div>
+        <div class="stat-value">12</div>
+        <div class="stat-label">Plataformas</div>
+      </div>
+      <div>
+        <div class="stat-value">20k+</div>
+        <div class="stat-label">Prompts disponíveis</div>
+      </div>
+      <div>
+        <div class="stat-value">9</div>
+        <div class="stat-label">Ferramentas de IA</div>
+      </div>
+    </div>
+
+    <!-- Aperture ring decoration -->
+    <div class="aperture" aria-hidden="true">
+      <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="200" cy="200" r="190" stroke="rgba(201,168,76,0.06)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="160" stroke="rgba(201,168,76,0.04)" stroke-width="1" stroke-dasharray="4 8"/>
+        <circle cx="200" cy="200" r="130" stroke="rgba(201,168,76,0.06)" stroke-width="1"/>
+        <circle cx="200" cy="200" r="100" stroke="rgba(201,168,76,0.08)" stroke-width="1" stroke-dasharray="2 4"/>
+        <circle cx="200" cy="200" r="70"  stroke="rgba(201,168,76,0.05)" stroke-width="1"/>
+        <!-- aperture blades -->
+        <line x1="200" y1="10"  x2="200" y2="60"  stroke="rgba(201,168,76,0.15)" stroke-width="1"/>
+        <line x1="200" y1="340" x2="200" y2="390" stroke="rgba(201,168,76,0.15)" stroke-width="1"/>
+        <line x1="10"  y1="200" x2="60"  y2="200" stroke="rgba(201,168,76,0.15)" stroke-width="1"/>
+        <line x1="340" y1="200" x2="390" y2="200" stroke="rgba(201,168,76,0.15)" stroke-width="1"/>
+        <line x1="55"  y1="55"  x2="90"  y2="90"  stroke="rgba(201,168,76,0.1)" stroke-width="1"/>
+        <line x1="310" y1="310" x2="345" y2="345" stroke="rgba(201,168,76,0.1)" stroke-width="1"/>
+        <line x1="345" y1="55"  x2="310" y2="90"  stroke="rgba(201,168,76,0.1)" stroke-width="1"/>
+        <line x1="55"  y1="345" x2="90"  y2="310" stroke="rgba(201,168,76,0.1)" stroke-width="1"/>
+      </svg>
+    </div>
+  </header>
+
+  <!-- ░░ FILTERS ░░ -->
+  <nav class="filter-bar" role="navigation" aria-label="Filtros">
+    <span class="filter-label">Filtrar</span>
+    <button class="pill active" data-cat="all">Todos</button>
+    <button class="pill" data-cat="foto">Fotografia</button>
+    <button class="pill" data-cat="design">Design</button>
+    <button class="pill" data-cat="misto">Misto</button>
+  </nav>
+
+  <!-- ░░ CARDS ░░ -->
+  <main class="grid" id="grid">
+
+    <!-- 1 — PromptHero -->
+    <article class="card" data-cat="misto" style="animation-delay:0.7s">
+      <div class="card-header">
+        <span class="card-badge">Misto</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">PromptHero</h2>
+      <p class="card-url">prompthero.com</p>
+      <p class="card-desc">Galeria visual com imagens geradas + prompts copiáveis. O mais parecido com bananaprompts — filtra por fotografia, arte, design e animação.</p>
+      <div class="card-tags">
+        <span class="tag">Midjourney</span>
+        <span class="tag">Stable Diffusion</span>
+        <span class="tag">Sora</span>
+        <span class="tag">Retrato</span>
+        <span class="tag">Paisagem</span>
+      </div>
+      <a href="https://prompthero.com" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 2 — Lexica -->
+    <article class="card" data-cat="foto" style="animation-delay:0.8s">
+      <div class="card-header">
+        <span class="card-badge">Fotografia</span>
+        <span class="card-price mixed">Free/Pago</span>
+      </div>
+      <h2 class="card-name">Lexica Art</h2>
+      <p class="card-url">lexica.art</p>
+      <p class="card-desc">Busca visual — procure por estilo de imagem e veja os prompts usados. Imbatível para fotografia realista e retratos com Stable Diffusion.</p>
+      <div class="card-tags">
+        <span class="tag">Stable Diffusion</span>
+        <span class="tag">Realismo</span>
+        <span class="tag">Retrato</span>
+        <span class="tag">Busca visual</span>
+      </div>
+      <a href="https://lexica.art" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 3 — OpenArt -->
+    <article class="card" data-cat="misto" style="animation-delay:0.9s">
+      <div class="card-header">
+        <span class="card-badge">Misto</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">OpenArt</h2>
+      <p class="card-url">openart.ai</p>
+      <p class="card-desc">Galeria creator-first com prompts de fotografia, ilustração e design gráfico. Navegação gratuita + geração por créditos.</p>
+      <div class="card-tags">
+        <span class="tag">Design Gráfico</span>
+        <span class="tag">Ilustração</span>
+        <span class="tag">Fotografia</span>
+        <span class="tag">Créditos</span>
+      </div>
+      <a href="https://openart.ai" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 4 — PromptBase -->
+    <article class="card" data-cat="misto" style="animation-delay:1.0s">
+      <div class="card-header">
+        <span class="card-badge">Misto</span>
+        <span class="card-price mixed">Free/Pago</span>
+      </div>
+      <h2 class="card-name">PromptBase</h2>
+      <p class="card-url">promptbase.com</p>
+      <p class="card-desc">Marketplace com +210 mil prompts testados para DALL-E, Midjourney e Stable Diffusion. Parte grátis, prompts premium de $2–$10.</p>
+      <div class="card-tags">
+        <span class="tag">DALL-E</span>
+        <span class="tag">Midjourney</span>
+        <span class="tag">Stable Diffusion</span>
+        <span class="tag">Marketplace</span>
+      </div>
+      <a href="https://promptbase.com" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 5 — Imagine.Art -->
+    <article class="card" data-cat="foto" style="animation-delay:1.1s">
+      <div class="card-header">
+        <span class="card-badge">Fotografia</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">Imagine.Art</h2>
+      <p class="card-url">imagine.art/blogs/ai-photography-prompts</p>
+      <p class="card-desc">56+ prompts organizados por tipo fotográfico: paisagem, wildlife, underwater, street, produto, retrato e conceitual.</p>
+      <div class="card-tags">
+        <span class="tag">Paisagem</span>
+        <span class="tag">Wildlife</span>
+        <span class="tag">Street</span>
+        <span class="tag">Produto</span>
+        <span class="tag">Underwater</span>
+      </div>
+      <a href="https://www.imagine.art/blogs/ai-photography-prompts" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 6 — CarePhoto -->
+    <article class="card" data-cat="foto" style="animation-delay:1.2s">
+      <div class="card-header">
+        <span class="card-badge">Fotografia</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">CarePhoto</h2>
+      <p class="card-url">carephoto.art/prompt-bank</p>
+      <p class="card-desc">260+ prompts gratuitos focados em moda, catálogos e lookbooks. Técnicas sofisticadas de iluminação para uso comercial.</p>
+      <div class="card-tags">
+        <span class="tag">Moda</span>
+        <span class="tag">Fashion</span>
+        <span class="tag">Lookbook</span>
+        <span class="tag">Catálogo</span>
+        <span class="tag">Comercial</span>
+      </div>
+      <a href="https://www.carephoto.art/prompt-bank" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 7 — Civitai -->
+    <article class="card" data-cat="misto" style="animation-delay:1.3s">
+      <div class="card-header">
+        <span class="card-badge">Misto</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">Civitai</h2>
+      <p class="card-url">civitai.com</p>
+      <p class="card-desc">O "GitHub da arte IA". Além de prompts, oferece modelos, LoRAs e textual inversions para Stable Diffusion. Comunidade open-source enorme.</p>
+      <div class="card-tags">
+        <span class="tag">Stable Diffusion</span>
+        <span class="tag">LoRA</span>
+        <span class="tag">ComfyUI</span>
+        <span class="tag">Open-source</span>
+      </div>
+      <a href="https://civitai.com" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 8 — Adobe Firefly -->
+    <article class="card" data-cat="design" style="animation-delay:1.4s">
+      <div class="card-header">
+        <span class="card-badge">Design</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">Adobe Firefly</h2>
+      <p class="card-url">adobe.com/products/firefly</p>
+      <p class="card-desc">Exemplos e guias profissionais para design gráfico, ilustração, 3D e branding. Focado no ecossistema Adobe.</p>
+      <div class="card-tags">
+        <span class="tag">Design Gráfico</span>
+        <span class="tag">Ilustração</span>
+        <span class="tag">3D</span>
+        <span class="tag">Branding</span>
+        <span class="tag">UI</span>
+      </div>
+      <a href="https://www.adobe.com/products/firefly/discover/ai-art-prompts-for-graphic-design.html" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 9 — Canva -->
+    <article class="card" data-cat="design" style="animation-delay:1.5s">
+      <div class="card-header">
+        <span class="card-badge">Design</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">Canva Design School</h2>
+      <p class="card-url">canva.com/design-school</p>
+      <p class="card-desc">100+ prompts criativos para visuais AI com boas práticas de design. Ideal para quem trabalha com conteúdo visual e redes sociais.</p>
+      <div class="card-tags">
+        <span class="tag">100+ prompts</span>
+        <span class="tag">Social Media</span>
+        <span class="tag">Boas práticas</span>
+      </div>
+      <a href="https://www.canva.com/design-school/resources/100-creative-prompts-ai-visuals" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 10 — ImageneBuddy -->
+    <article class="card" data-cat="misto" style="animation-delay:1.6s">
+      <div class="card-header">
+        <span class="card-badge">Misto</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">ImageneBuddy</h2>
+      <p class="card-url">imaginebuddy.com</p>
+      <p class="card-desc">+20.000 prompts para ChatGPT, Midjourney, Gemini, Firefly, Ideogram e Leonardo. O maior volume puro de prompts da lista.</p>
+      <div class="card-tags">
+        <span class="tag">ChatGPT</span>
+        <span class="tag">Gemini</span>
+        <span class="tag">Ideogram</span>
+        <span class="tag">Leonardo</span>
+        <span class="tag">20k+</span>
+      </div>
+      <a href="https://imaginebuddy.com" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 11 — The Prompt Index -->
+    <article class="card" data-cat="misto" style="animation-delay:1.7s">
+      <div class="card-header">
+        <span class="card-badge">Misto</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">Prompt Index</h2>
+      <p class="card-url">thepromptindex.com</p>
+      <p class="card-desc">1.000+ prompts curados e categorizados por estilo e propósito, com explicações detalhadas dos parâmetros usados.</p>
+      <div class="card-tags">
+        <span class="tag">DALL-E</span>
+        <span class="tag">Midjourney</span>
+        <span class="tag">Curado</span>
+        <span class="tag">1k+ prompts</span>
+      </div>
+      <a href="https://www.thepromptindex.com/image-database.php" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+    <!-- 12 — Nano Banana -->
+    <article class="card" data-cat="foto" style="animation-delay:1.8s">
+      <div class="card-header">
+        <span class="card-badge">Fotografia</span>
+        <span class="card-price free">Grátis</span>
+      </div>
+      <h2 class="card-name">Nano Banana</h2>
+      <p class="card-url">nanobananaprompt.org</p>
+      <p class="card-desc">Especializado em retrato e geração de personagens. Prompts detalhados para fotografia de retrato com controle de iluminação e estilo.</p>
+      <div class="card-tags">
+        <span class="tag">Retrato</span>
+        <span class="tag">Personagens</span>
+        <span class="tag">Iluminação</span>
+      </div>
+      <a href="https://nanobananaprompt.org/prompts/portrait/" target="_blank" rel="noopener" class="card-cta">
+        Visitar
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+
+  </main>
+
+  <!-- ░░ CATEGORIES SECTION ░░ -->
+  <hr class="divider" />
+  <h3 class="section-title">Áreas cobertas</h3>
+  <div class="cats-grid">
+    <div class="cat-chip"><span class="cat-dot dot-teal"></span>Retrato & Headshot</div>
+    <div class="cat-chip"><span class="cat-dot dot-teal"></span>Paisagem & Natureza</div>
+    <div class="cat-chip"><span class="cat-dot dot-teal"></span>Fotografia de Produto</div>
+    <div class="cat-chip"><span class="cat-dot dot-teal"></span>Moda & Fashion</div>
+    <div class="cat-chip"><span class="cat-dot dot-teal"></span>Street & Urbano</div>
+    <div class="cat-chip"><span class="cat-dot dot-teal"></span>Underwater & Wildlife</div>
+    <div class="cat-chip"><span class="cat-dot dot-teal"></span>Editorial & Comercial</div>
+    <div class="cat-chip"><span class="cat-dot dot-teal"></span>Fotografia Conceitual</div>
+    <div class="cat-chip"><span class="cat-dot dot-coral"></span>Design Gráfico</div>
+    <div class="cat-chip"><span class="cat-dot dot-coral"></span>UI / UX</div>
+    <div class="cat-chip"><span class="cat-dot dot-coral"></span>Ilustração</div>
+    <div class="cat-chip"><span class="cat-dot dot-coral"></span>Logo & Branding</div>
+    <div class="cat-chip"><span class="cat-dot dot-coral"></span>3D Rendering</div>
+    <div class="cat-chip"><span class="cat-dot dot-coral"></span>Motion & Animação</div>
+    <div class="cat-chip"><span class="cat-dot dot-coral"></span>Publicidade</div>
+    <div class="cat-chip"><span class="cat-dot dot-coral"></span>Social Media</div>
+  </div>
+
+  <!-- ░░ FOOTER ░░ -->
+  <footer>
+    <span>Prompt Banks — Curadoria <em>2026</em></span>
+    <span>12 plataformas · Fotografia & Design</span>
+  </footer>
+
+  <script>
+    // Filter system
+    const pills = document.querySelectorAll('.pill');
+    const cards = document.querySelectorAll('.card');
+
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const cat = pill.dataset.cat;
+
+        cards.forEach((card, i) => {
+          const match = cat === 'all' || card.dataset.cat === cat;
+          if (match) {
+            card.classList.remove('hidden');
+            card.style.animationDelay = `${i * 0.06}s`;
+            card.style.animation = 'none';
+            requestAnimationFrame(() => {
+              card.style.animation = '';
+              card.style.animationName = 'cardIn';
+            });
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
